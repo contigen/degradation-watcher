@@ -158,10 +158,10 @@ export default function AlertsPage() {
                       </p>
 
                       <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                        <span style={{ fontSize: 11, color: "#4a6080", fontFamily: "'IBM Plex Mono', monospace" }}>
-                          {alert.assetType === "bridge" ? "🌉" : "🌾"} {alert.assetType}
+                        <span style={{ fontSize: 11, color: "#666" }}>
+                          🌾 {alert.assetType || "farmland"}
                         </span>
-                        <span style={{ fontSize: 11, color: "#4a6080", fontFamily: "'IBM Plex Mono', monospace" }}>
+                        <span style={{ fontSize: 11, color: "#666" }}>
                           {formatDistanceToNow(parseISO(alert.createdAt), { addSuffix: true })}
                         </span>
                         <span style={{ color, fontSize: 11, fontWeight: 600 }}>

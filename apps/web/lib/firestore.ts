@@ -3,6 +3,7 @@ import {
   getFirestore,
   collection,
   doc,
+  setDoc,
   onSnapshot,
   query,
   orderBy,
@@ -23,13 +24,24 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
 }
 
-
-
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
 export const db = getFirestore(app)
 
 // ── Assets ──────────────────────────────────────────────────
+
+export async function createAsset(
+  assetData: Omit<Asset, 'createdAt' | 'updatedAt'>,
+): Promise<string> {
+  const now = new Date().toISOString()
+  const docRef = doc(db, 'assets', assetData.id)
+  await setDoc(docRef, {
+    ...assetData,
+    createdAt: now,
+    updatedAt: now,
+  })
+  return assetData.id
+}
 
 export async function getAllAssets(): Promise<Asset[]> {
   const snap = await getDocs(collection(db, 'assets'))

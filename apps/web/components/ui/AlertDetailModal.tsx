@@ -151,7 +151,7 @@ export default function AlertDetailModal({
               <div>
                 <div className="stat-label">Type</div>
                 <div style={{ fontSize: 13, marginTop: 4, color: "#e2eaf4" }}>
-                  {alert.assetType === "bridge" ? "🌉 Bridge" : "🌾 Farmland"}
+                  🌾 {alert.assetType || "Farmland"}
                 </div>
               </div>
               <div>
