@@ -51,7 +51,7 @@ export default function DashboardPage() {
       {/* Page header */}
       <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <h1 className="page-title" style={{ fontSize: "18px", textTransform: "lowercase" }}>Mission Control</h1>
+          <h1 className="page-title" style={{ fontSize: "18px", textTransform: "lowercase" }}>Dashboard</h1>
           <p className="page-subtitle" style={{ fontSize: "12px" }}>
             {assets.length} farmlands monitored · Sentinel-2 NDVI refresh every 5 days
           </p>
