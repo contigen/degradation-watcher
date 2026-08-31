@@ -1,0 +1,24 @@
+{
+  "name": "risk-scorer",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch agent.ts",
+    "build": "tsc",
+    "start": "node dist/agent.js"
+  },
+  "dependencies": {
+    "@google/adk": "^0.5.0",
+    "@google-cloud/firestore": "^7.10.0",
+    "@google-cloud/pubsub": "^4.9.0",
+    "@google-cloud/vertexai": "^1.9.0",
+    "express": "^4.21.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}
