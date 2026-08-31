@@ -39,3 +39,8 @@ venv/
 temp*.png
 restored_*.tsx
 *.tsbuildinfo
+
+# Local skills
+.agents/
+skills-lock.json
+AGENTS.md
