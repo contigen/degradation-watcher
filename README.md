@@ -1,8 +1,6 @@
 # 🛰️ Degradation Watcher
 
-> An autonomous multi-agent system that watches agricultural land degrade in slow motion — and acts before crop failure or severe soil erosion becomes irreversible.
-
-Built for the **All Things Agentic Hackathon** by Google Cloud.
+An autonomous multi-agent system that watches agricultural land degrade in slow motion — and acts before crop failure or severe soil erosion becomes irreversible.
 
 ---
 
@@ -16,7 +14,7 @@ Degradation Watcher is a continuously running, asynchronous fleet of AI agents t
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│  Next.js 16 Dashboard (TypeScript · Geist Mono · Server Components)   │
+│  Next.js 16 Dashboard (TypeScript · Server Components)   │
 │  Interactive temporal diffing · Asset map · Risk score timeline        │
 └──────────────────────────────────┬─────────────────────────────────────┘
                                    │ Firestore real-time listeners
@@ -42,7 +40,7 @@ Degradation Watcher is a continuously running, asynchronous fleet of AI agents t
 | ---------------- | --------------------------------------------------------------------- |
 | **AI Model**     | **Gemini 3.6 Flash** (Google GenAI / Vertex AI)                       |
 | Agent Framework  | Google ADK TypeScript `@google/adk`                                   |
-| Frontend         | Next.js 16, React 19, Tailwind CSS v4, Geist Mono, Recharts, MapLibre |
+| Frontend         | Next.js 16, React 19, Tailwind CSS v4, Recharts, MapLibre             |
 | Imagery Pipeline | Python 3.11, pystac-client, rasterio, Pillow downsampler, FastAPI     |
 | Satellite Data   | Sentinel-2 (ESA/Copernicus) via AWS Element84 STAC — free / open      |
 | Weather Context  | Open-Meteo API (soil moisture, temperature, precipitation) — free     |
@@ -98,6 +96,7 @@ GCS_BUCKET=your-google-cloud-project-id
 ### Option A: Local Development Setup
 
 #### 1. Seed the Farmland Registry
+
 Seed Firestore with real agricultural parcels (Central Valley Almonds, Iowa Corn Belt, Kansas Wheat, etc.):
 
 ```bash
@@ -105,6 +104,7 @@ node infrastructure/seed-assets.js
 ```
 
 #### 2. Run the Next.js Web Dashboard
+
 Start the local dashboard with Bun:
 
 ```bash
@@ -116,6 +116,7 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 #### 3. Run the Python Imagery Service Locally (Optional)
+
 ```bash
 cd services/imagery
 python3 -m venv .venv && source .venv/bin/activate
@@ -163,6 +164,7 @@ chmod +x infrastructure/deploy.sh infrastructure/wire-subscriptions.sh infrastru
 #### 4. Manual Cloud Run Service Deployment (Alternative)
 
 ##### Deploy Python Imagery Service:
+
 ```bash
 cd services/imagery
 gcloud run deploy imagery-service \
@@ -175,6 +177,7 @@ gcloud run deploy imagery-service \
 ```
 
 ##### Deploy Orchestrator Agent:
+
 ```bash
 cd agents/orchestrator
 npm run build
@@ -206,7 +209,6 @@ Watch the pipeline logs stream, satellite tiles downsample, Gemini 3.6 Flash dif
 
 ---
 
-
 ---
 
 ## Reproducible Testing Guide (Judge Walkthrough)
@@ -214,29 +216,26 @@ Watch the pipeline logs stream, satellite tiles downsample, Gemini 3.6 Flash dif
 To verify all features and agent workflows locally:
 
 ### 1. View Farmland Fleet & Map
+
 - Open [http://localhost:3000/dashboard](http://localhost:3000/dashboard) to view active agricultural parcels across the US, risk score distribution, and live alerts.
 - Click **Farmlands** ([http://localhost:3000/assets](http://localhost:3000/assets)) to browse the full farmland registry.
 
 ### 2. Test Multimodal Temporal Diffing & Gemini Vision Reasoning
-- Open the [Central Valley Almond Orchard](http://localhost:3000/assets/farm_california_central_valley).
+
+- Open the [Central Valley Almond Orchard](http://localhost:3000/assets/farm_california_central_valley) on localhost.
 - In the **Capture Timeline** on the left, click through historical captures to observe how the side-by-side satellite imagery, **Gemini 3.6 Flash** reasoning commentary, and 4-factor risk breakdown update reactively.
 
 ### 3. Test Live Asset Ingest & Automated Pipeline
+
 - Click **`+ Submit Farmland for Monitoring`** in the top bar.
 - Select a quick preset (e.g. `+ Salinas (lettuce)`) or enter custom coordinates and crop parameters.
 - Click **Submit for Sentinel-2 Monitoring**.
 - The system registers the parcel in Firestore, pulls the latest Sentinel-2 L2A scene from the STAC catalog, downsamples the visual tile, and navigates directly to the new asset view.
 
 ### 4. Manual Pipeline Verification (Optional Backend Test)
+
 Trigger an on-demand satellite fetch and multi-agent evaluation via HTTP POST:
+
 ```bash
 curl -X POST https://imagery-service-hotx43jlqq-uc.a.run.app/run/farm_california_central_valley
 ```
-
-## Judging Criteria Alignment
-
-| Criterion                | How We Address It                                                                                                                                                  |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Innovation (40%)**     | Novel domain (physical world & agricultural degradation monitoring), long-running asynchronous agents that continuously track physical changes across satellite passes |
-| **Architecture (30%)**   | Event-driven multi-agent fleet on Cloud Run, Pub/Sub async pipeline, persistent Firestore state, Gemini 3.6 Flash multimodal reasoning, Open-Meteo & USGS context |
-| **Demo Readiness (30%)** | Live Next.js dashboard with interactive temporal diffing, real Sentinel-2 satellite imagery, side-by-side visual analysis, GCP console proof                         |
