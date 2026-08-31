@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import type { Asset } from "../../lib/types";
 
 type SubmitAssetModalProps = {
@@ -17,6 +18,7 @@ const PRESETS = [
 ];
 
 export default function SubmitAssetModal({ isOpen, onClose, onSuccess }: SubmitAssetModalProps) {
+  const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [lat, setLat] = useState("36.7783");
@@ -122,6 +124,7 @@ export default function SubmitAssetModal({ isOpen, onClose, onSuccess }: SubmitA
 
       if (onSuccess) onSuccess(assetId);
       onClose();
+      router.push(`/assets/${assetId}`);
     } catch (err: unknown) {
       console.error("Failed to submit asset:", err);
       setError(err instanceof Error ? err.message : "Failed to register asset in Firestore");
