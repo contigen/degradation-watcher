@@ -192,7 +192,7 @@ gcloud run deploy degradation-orchestrator \
 
 ---
 
-## Triggering a Live Demo Run
+## Triggering a Live Demo Run (Backend)
 
 To trigger the end-to-end autonomous analysis pipeline manually during a demo:
 
@@ -205,6 +205,33 @@ curl -X POST https://imagery-service-xxx.a.run.app/fetch-single \
 Watch the pipeline logs stream, satellite tiles downsample, Gemini 3.6 Flash diff the images, and the dashboard update in real-time!
 
 ---
+
+
+---
+
+## Reproducible Testing Guide (Judge Walkthrough)
+
+To verify all features and agent workflows locally:
+
+### 1. View Farmland Fleet & Map
+- Open [http://localhost:3000/dashboard](http://localhost:3000/dashboard) to view active agricultural parcels across the US, risk score distribution, and live alerts.
+- Click **Farmlands** ([http://localhost:3000/assets](http://localhost:3000/assets)) to browse the full farmland registry.
+
+### 2. Test Multimodal Temporal Diffing & Gemini Vision Reasoning
+- Open the [Central Valley Almond Orchard](http://localhost:3000/assets/farm_california_central_valley).
+- In the **Capture Timeline** on the left, click through historical captures to observe how the side-by-side satellite imagery, **Gemini 3.6 Flash** reasoning commentary, and 4-factor risk breakdown update reactively.
+
+### 3. Test Live Asset Ingest & Automated Pipeline
+- Click **`+ Submit Farmland for Monitoring`** in the top bar.
+- Select a quick preset (e.g. `+ Salinas (lettuce)`) or enter custom coordinates and crop parameters.
+- Click **Submit for Sentinel-2 Monitoring**.
+- The system registers the parcel in Firestore, pulls the latest Sentinel-2 L2A scene from the STAC catalog, downsamples the visual tile, and navigates directly to the new asset view.
+
+### 4. Manual Pipeline Verification (Optional Backend Test)
+Trigger an on-demand satellite fetch and multi-agent evaluation via HTTP POST:
+```bash
+curl -X POST https://imagery-service-hotx43jlqq-uc.a.run.app/run/farm_california_central_valley
+```
 
 ## Judging Criteria Alignment
 
