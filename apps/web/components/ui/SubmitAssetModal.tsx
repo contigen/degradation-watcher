@@ -111,6 +111,18 @@ export default function SubmitAssetModal({ isOpen, onClose, onSuccess }: SubmitA
       };
 
       await createAsset(assetData);
+
+      // Trigger the end-to-end imagery pipeline immediately
+      try {
+        fetch("/api/trigger-analysis", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ assetId }),
+        }).catch((err) => console.warn("Pipeline trigger notification:", err));
+      } catch (e) {
+        // Non-blocking trigger
+      }
+
       if (onSuccess) onSuccess(assetId);
       onClose();
     } catch (err: unknown) {
