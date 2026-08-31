@@ -126,17 +126,10 @@ gcloud run deploy degradation-orchestrator \
 
 ### 6. Run Dashboard Locally
 
-```bash
+````bash
 cd apps/web
 bun install
 bun dev
 # Open http://localhost:3000
-```
-
-## Judging Criteria Alignment
-
-| Criterion                | How We Address It                                                                                                                                                  |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Innovation (40%)**     | Novel domain (physical world monitoring), async long-running agents that genuinely cannot work in single sessions, dual asset class (infrastructure + agriculture) |
-| **Architecture (30%)**   | Full event-driven multi-agent fleet on Cloud Run, Pub/Sub async pipeline, persistent Firestore state, Gemini 3.6 Flash multimodal reasoning, Open-Meteo/USGS context |
-| **Demo Readiness (30%)** | Live Next.js dashboard with interactive temporal diffing, real Sentinel-2 satellite imagery, side-by-side visual analysis, GCP console proof                         |
+```                        |
+````
