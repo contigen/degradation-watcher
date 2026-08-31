@@ -90,6 +90,9 @@ export default function AssetView({ asset, records }: { asset: AssetData, record
   const weatherScore = components?.weatherStressScore ?? 0
   const seismicScore = components?.seismicScore ?? 8
   const ageScore = components?.ageScore ?? 0
+  const displayScore = components
+    ? visualScore + weatherScore + seismicScore + ageScore
+    : score
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 lowercase font-mono pb-20">
@@ -118,7 +121,7 @@ export default function AssetView({ asset, records }: { asset: AssetData, record
           </div>
           <div className="flex items-center gap-4">
             <div className="relative w-14 h-14 flex items-center justify-center rounded-full border-2 border-blue-500/30">
-              <span className="text-lg font-semibold text-white">{score}</span>
+              <span className="text-lg font-semibold text-white">{displayScore}</span>
             </div>
             <div className="text-xs text-gray-500">
               <div className="text-gray-300 mb-0.5">score velocity</div>
