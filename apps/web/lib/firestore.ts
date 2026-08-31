@@ -23,23 +23,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
 }
 
-// // Import the functions you need from the SDKs you need
-// import { initializeApp } from "firebase/app";
-// // TODO: Add SDKs for Firebase products that you want to use
-// // https://firebase.google.com/docs/web/setup#available-libraries
 
-// // Your web app's Firebase configuration
-// const firebaseConfig = {
-//   apiKey: "AIzaSyC_DtsYkaNNIIAbGHyK8NFH27IaPW2Z0T4",
-//   authDomain: "degradation-watcher.firebaseapp.com",
-//   projectId: "degradation-watcher",
-//   storageBucket: "degradation-watcher.firebasestorage.app",
-//   messagingSenderId: "797246115122",
-//   appId: "1:797246115122:web:f17b6c91fa32b374e51b2b"
-// };
-
-// // Initialize Firebase
-// const app = initializeApp(firebaseConfig);
 
 const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
