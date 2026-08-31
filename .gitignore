@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js & Turbopack build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env
+.env*.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.pem
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*output.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Temp
+temp*.png
+restored_*.tsx
+*.tsbuildinfo

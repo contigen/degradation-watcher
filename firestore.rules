@@ -1,0 +1,11 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow public read access to all documents (since this is a read-only dashboard)
+    // Only the Cloud Run agents (via Service Account) can write to it.
+    match /{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

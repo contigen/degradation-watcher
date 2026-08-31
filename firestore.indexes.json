@@ -1,0 +1,37 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "alerts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "status", "order": "ASCENDING"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "risk_scores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "assetId", "order": "ASCENDING"},
+        {"fieldPath": "scoredAt", "order": "ASCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "pipeline_logs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "assetId", "order": "ASCENDING"},
+        {"fieldPath": "timestamp", "order": "DESCENDING"}
+      ]
+    },
+    {
+      "collectionGroup": "degradation_records",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "assetId", "order": "ASCENDING"},
+        {"fieldPath": "captureDate", "order": "DESCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

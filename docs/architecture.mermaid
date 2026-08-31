@@ -1,0 +1,57 @@
+flowchart TD
+    CS["☁️ Cloud Scheduler\n5-day cadence\n0 2 */5 * *"]
+    IS["🐍 Imagery Service\nFastAPI / Cloud Run\nSentinel-2 + NDVI"]
+    STAC["🛰️ AWS Element84 STAC\nSentinel-2 L2A\nFree · No auth"]
+    GCS["🗄️ Cloud Storage\nRaw imagery tiles\ngs://bucket/imagery/"]
+    PS_IR["📨 Pub/Sub\nimagery-ready"]
+
+    OA["🤖 Orchestrator Agent\nADK TypeScript\nCloud Run"]
+    
+    PS_CE["📨 Pub/Sub\ncontext-enricher-trigger"]
+    PS_RS["📨 Pub/Sub\nrisk-scorer-trigger"]
+    PS_RD["📨 Pub/Sub\nresponse-drafter-trigger"]
+
+    CEA["🌦️ Context Enricher Agent\nADK TypeScript · Cloud Run\nNOAA + USGS + Open-Meteo"]
+    RSA["📊 Risk Scorer Agent\nADK TypeScript · Cloud Run\nComposite 0-100 score"]
+    RDA["📋 Response Drafter Agent\nADK TypeScript · Cloud Run\nGemini report generation"]
+
+    NOAA["🌧️ NOAA CDO API\nWeather history\nFree"]
+    USGS["🌍 USGS Earthquake\nSeismic events\nFree"]
+    OM["🌡️ Open-Meteo\nSoil moisture · ET\nFree · No auth"]
+    GEMINI["✨ Gemini 2.0 Flash\nVertex AI\nMultimodal vision"]
+
+    FS[("🔥 Firestore\nAsset registry\nDegradation records\nRisk scores\nAlerts")]
+    WEB["🖥️ Next.js Dashboard\nAsset map · Timeline\nAlert inbox · Reports"]
+
+    CS -->|HTTP POST /run| IS
+    IS -->|STAC search| STAC
+    IS -->|upload tiles| GCS
+    IS -->|publish| PS_IR
+    PS_IR -->|push| OA
+    OA -->|publish| PS_CE
+    OA -->|publish| PS_RS
+    OA -->|A2A| RDA
+    PS_CE -->|push| CEA
+    CEA --> NOAA
+    CEA --> USGS
+    CEA --> OM
+    CEA -->|write context| FS
+    PS_RS -->|push| RSA
+    RSA -->|read| FS
+    RSA -->|write score| FS
+    RSA -->|if threshold exceeded| PS_RD
+    PS_RD -->|push| RDA
+    RDA --> GEMINI
+    RDA -->|write alert + report| FS
+    OA --> GEMINI
+    GEMINI -->|multi-image analysis| GCS
+    WEB -->|real-time listener| FS
+
+    style GEMINI fill:#4f46e5,color:#fff,stroke:#6366f1
+    style FS fill:#ea580c,color:#fff,stroke:#f97316
+    style WEB fill:#0f766e,color:#fff,stroke:#14b8a6
+    style IS fill:#166534,color:#fff,stroke:#22c55e
+    style OA fill:#1e3a5f,color:#fff,stroke:#60a5fa
+    style CEA fill:#1e3a5f,color:#fff,stroke:#60a5fa
+    style RSA fill:#1e3a5f,color:#fff,stroke:#60a5fa
+    style RDA fill:#1e3a5f,color:#fff,stroke:#60a5fa
