@@ -6,84 +6,72 @@ Built for the **All Things Agentic Hackathon** by Google Cloud.
 
 ## What It Does
 
-Degradation Watcher is a continuously running, asynchronous fleet of AI agents that monitors civil infrastructure (bridges, roads) and agricultural land via free satellite imagery — detecting degradation weeks before human inspection would catch it, and autonomously drafting response briefs routed to the right people.
+Degradation Watcher is a continuously running, asynchronous fleet of AI agents that monitors civil infrastructure (bridges, roads) and agricultural land via free Sentinel-2 satellite imagery — detecting degradation weeks before human inspection would catch it, and autonomously drafting response briefs routed to the right people.
 
 **178 million vehicles cross structurally deficient bridges every day. Nobody is watching them between inspections. Until now.**
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  Next.js 16 Dashboard (TypeScript)                  │
-│  Asset map · Degradation timelines · Alert inbox    │
-└──────────────────┬──────────────────────────────────┘
-                   │ Firestore real-time listeners
-┌──────────────────▼──────────────────────────────────┐
-│  ADK Agent Fleet (TypeScript — @google/adk)         │
-│  Orchestrator → Risk Scorer → Response Drafter      │
-│  Context Enricher (NOAA + USGS + Open-Meteo)        │
-│  Deployed on Cloud Run, triggered by Pub/Sub        │
-└──────────────────┬──────────────────────────────────┘
-                   │ Pub/Sub event: imagery ready
-┌──────────────────▼──────────────────────────────────┐
-│  Imagery Service (Python — FastAPI)                 │
-│  Sentinel-2 fetch · NDVI · Cloud Storage export     │
-│  Cloud Run + Cloud Scheduler (every 5 days)         │
-└─────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│  Next.js 16 Dashboard (TypeScript · Geist Mono · Server Components)   │
+│  Interactive temporal diffing · Asset map · Risk score timeline        │
+└──────────────────────────────────┬─────────────────────────────────────┘
+                                   │ Firestore real-time listeners
+┌──────────────────────────────────▼─────────────────────────────────────┐
+│  ADK Agent Fleet (TypeScript — @google/adk · Gemini 3.6 Flash)         │
+│  Orchestrator → Risk Scorer → Response Drafter                         │
+│  Context Enricher (Open-Meteo weather + USGS earthquake data)          │
+│  Deployed on Cloud Run, triggered by Pub/Sub                           │
+└──────────────────────────────────┬─────────────────────────────────────┘
+                                   │ Pub/Sub event: imagery ready
+┌──────────────────────────────────▼─────────────────────────────────────┐
+│  Imagery Service (Python · FastAPI · Pillow)                           │
+│  Sentinel-2 STAC fetch · NDVI · Web thumbnail downsampling             │
+│  Cloud Run + Cloud Scheduler (every 5 days)                            │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Tech Stack
 
-| Layer            | Technology                                                |
-| ---------------- | --------------------------------------------------------- |
-| AI Model         | Gemini 3.5 Flash (Vertex AI)                              |
-| Agent Framework  | Google ADK TypeScript `@google/adk`                       |
-| Frontend         | Next.js 15, Tailwind CSS, MapLibre GL, Recharts           |
-| Imagery Pipeline | Python, pystac-client, rasterio, FastAPI                  |
-| Satellite Data   | Sentinel-2 (ESA/Copernicus) via AWS Element84 STAC — free |
-| Asset Location   | OpenStreetMap Overpass API + FHWA NBI — free              |
-| Weather Context  | NOAA CDO API, Open-Meteo — free                           |
-| Seismic Context  | USGS Earthquake API — free                                |
-| State            | Firestore (asset registry, degradation history, alerts)   |
-| Events           | Pub/Sub (async agent pipeline)                            |
-| Scheduling       | Cloud Scheduler (5-day imagery cadence)                   |
-| Compute          | Cloud Run (all services)                                  |
-| Safety           | Model Armor (report drafter guardrails)                   |
+| Layer            | Technology                                                            |
+| ---------------- | --------------------------------------------------------------------- |
+| **AI Model**     | **Gemini 3.6 Flash** (Google GenAI / Vertex AI)                       |
+| Agent Framework  | Google ADK TypeScript `@google/adk`                                   |
+| Frontend         | Next.js 16, React 19, Tailwind CSS v4, Geist Mono, Recharts, MapLibre |
+| Imagery Pipeline | Python 3.11, pystac-client, rasterio, Pillow downsampler, FastAPI     |
+| Satellite Data   | Sentinel-2 (ESA/Copernicus) via AWS Element84 STAC — free             |
+| Asset Location   | OpenStreetMap Overpass API + FHWA NBI — free                          |
+| Weather Context  | Open-Meteo (soil moisture, temperature, precipitation) — free         |
+| Seismic Context  | USGS Earthquake Hazards API — free                                    |
+| State & Storage  | Firestore (asset registry, degradation history), Google Cloud Storage |
+| Event Streaming  | Google Cloud Pub/Sub (asynchronous event-driven agent pipeline)       |
+| Scheduling       | Cloud Scheduler (5-day satellite revisit cadence)                     |
+| Compute          | Google Cloud Run (microservices architecture)                         |
 
-## Asset Classes
+## Key Agent Capabilities
 
-- **Infrastructure**: Bridges and roads — visual change detection (cracking, staining, spalling, subsidence)
-- **Agriculture**: Farmland — NDVI time-series (crop stress, irrigation failure, soil degradation)
-
-## Data Sources (All Free)
-
-| Source              | Data                           | Auth                |
-| ------------------- | ------------------------------ | ------------------- |
-| AWS Element84 STAC  | Sentinel-2 imagery             | None                |
-| Google Earth Engine | NAIP, Landsat archive          | GEE OAuth (free)    |
-| OSM Overpass API    | Bridge/road/farmland locations | None                |
-| FHWA NBI            | US bridge inventory + ratings  | None (CSV download) |
-| NOAA CDO API        | Historical weather             | Free token          |
-| Open-Meteo          | Soil moisture, temperature     | None                |
-| USGS Earthquake     | Seismic events                 | None                |
-| USDA NASS           | Crop yield baselines           | Free API key        |
+- **Temporal Diffing Analysis**: Evaluates high-resolution multi-temporal satellite imagery side-by-side using **Gemini 3.6 Flash** vision capabilities to identify vegetation loss, drought stress, and structural shifts.
+- **Multimodal Risk Scoring**: Blends visual severity (1–5 scale with strict bounds clamping) with live weather stress, seismic proximity, and asset age.
+- **Automated Imagery Downsampling**: Python service downsamples raw 200MB+ Sentinel-2 GeoTIFF tiles to web-optimized 1024x1024 visual PNGs prior to GCS upload, eliminating frontend latency.
+- **Human-in-the-Loop Alerting**: Autonomously drafts contextualized inspection reports and mitigation plans when degradation crosses defined risk thresholds.
 
 ## Quickstart
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 20+ / Bun
 - Python 3.11+
 - Google Cloud project with billing enabled
 - `gcloud` CLI authenticated
 
-### 1. Clone & configure
+### 1. Clone & Configure
 
 ```bash
 git clone <repo>
 cd degradation-watcher
 cp .env.example .env
-# Fill in your GCP project ID, Gemini API key, NOAA token
+# Fill in your GCP_PROJECT, GCP_REGION, and GEMINI_API_KEY
 ```
 
 ### 2. Enable GCP APIs
@@ -94,47 +82,54 @@ gcloud services enable \
   pubsub.googleapis.com \
   firestore.googleapis.com \
   cloudscheduler.googleapis.com \
-  aiplatform.googleapis.com \
-  earthengine.googleapis.com
+  aiplatform.googleapis.com
 ```
 
-### 3. Seed infrastructure
+### 3. Seed Infrastructure
 
 ```bash
 cd infrastructure
-node seed-assets.js   # Seeds Firestore with 15 real assets
-node setup-pubsub.js  # Creates topics and subscriptions
-node setup-scheduler.js  # Creates Cloud Scheduler jobs
+node seed-assets.js       # Seeds Firestore with real assets
+./wire-subscriptions.sh  # Sets up Pub/Sub topics and push subscriptions
+./setup-scheduler.sh     # Sets up Cloud Scheduler triggers
 ```
 
-### 4. Deploy imagery service
+### 4. Deploy Imagery Service
 
 ```bash
 cd services/imagery
-pip install -r requirements.txt
 gcloud run deploy imagery-service \
   --source . \
   --region us-central1 \
-  --set-env-vars GCS_BUCKET=$GCS_BUCKET,PUBSUB_TOPIC=$PUBSUB_TOPIC
+  --project $GCP_PROJECT \
+  --service-account degradation-watcher-sa@$GCP_PROJECT.iam.gserviceaccount.com \
+  --allow-unauthenticated \
+  --set-env-vars "GCP_PROJECT=$GCP_PROJECT,GCP_REGION=us-central1,GCS_BUCKET=$GCP_PROJECT,PUBSUB_TOPIC=imagery-ready"
 ```
 
-### 5. Deploy ADK agents
+### 5. Deploy Orchestrator & Agent Fleet
 
 ```bash
 cd agents/orchestrator
-npm install
-npx adk deploy cloud_run . \
-  --project $GCP_PROJECT \
+npm run build
+gcloud run deploy degradation-orchestrator \
+  --source . \
   --region us-central1 \
-  --service_name degradation-orchestrator
+  --project $GCP_PROJECT \
+  --service-account degradation-watcher-sa@$GCP_PROJECT.iam.gserviceaccount.com \
+  --no-allow-unauthenticated \
+  --memory 2Gi \
+  --cpu 1 \
+  --timeout 300 \
+  --set-env-vars "GCP_PROJECT=$GCP_PROJECT,GCP_REGION=us-central1,GEMINI_API_KEY=$GEMINI_API_KEY"
 ```
 
-### 6. Run dashboard locally
+### 6. Run Dashboard Locally
 
 ```bash
 cd apps/web
-npm install
-npm run dev
+bun install
+bun dev
 # Open http://localhost:3000
 ```
 
@@ -143,11 +138,5 @@ npm run dev
 | Criterion                | How We Address It                                                                                                                                                  |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Innovation (40%)**     | Novel domain (physical world monitoring), async long-running agents that genuinely cannot work in single sessions, dual asset class (infrastructure + agriculture) |
-| **Architecture (30%)**   | Full A2A multi-agent fleet, Pub/Sub async pipeline, persistent Firestore state, Model Armor guardrails, Cloud Run microservices, OpenTelemetry traces              |
-| **Demo Readiness (30%)** | Live dashboard, pre-seeded real assets with synthetic degradation history, working Gemini analysis chain, GCP console proof                                        |
-
-## Bonus Points
-
-- ✅ Blog post: "How we built a satellite-powered infrastructure agent on Google Cloud"
-- ✅ Gemini multimodal (vision) — core of the Analyst agent
-- ✅ Veo integration path documented (video timelapse generation)
+| **Architecture (30%)**   | Full event-driven multi-agent fleet on Cloud Run, Pub/Sub async pipeline, persistent Firestore state, Gemini 3.6 Flash multimodal reasoning, Open-Meteo/USGS context |
+| **Demo Readiness (30%)** | Live Next.js dashboard with interactive temporal diffing, real Sentinel-2 satellite imagery, side-by-side visual analysis, GCP console proof                         |
