@@ -12,24 +12,40 @@ Degradation Watcher is a continuously running, asynchronous fleet of AI agents t
 
 ## Architecture
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│  Next.js 16 Dashboard (TypeScript · Server Components)   │
-│  Interactive temporal diffing · Asset map · Risk score timeline        │
-└──────────────────────────────────┬─────────────────────────────────────┘
-                                   │ Firestore real-time listeners
-┌──────────────────────────────────▼─────────────────────────────────────┐
-│  ADK Agent Fleet (TypeScript — @google/adk · Gemini 3.6 Flash)         │
-│  Orchestrator → Risk Scorer → Response Drafter                         │
-│  Context Enricher (Open-Meteo weather + USGS seismic context)          │
-│  Deployed on Cloud Run, triggered by Pub/Sub                           │
-└──────────────────────────────────┬─────────────────────────────────────┘
-                                   │ Pub/Sub event: imagery ready
-┌──────────────────────────────────▼─────────────────────────────────────┐
-│  Imagery Service (Python · FastAPI · Pillow)                           │
-│  Sentinel-2 STAC fetch · NDVI · Web thumbnail downsampling             │
-│  Cloud Run + Cloud Scheduler (every 5 days)                            │
-└────────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    A["1. Trigger & Ingestion
+• Cloud Scheduler / UI Submit
+• Imagery Service (Cloud Run)
+• Sentinel-2 STAC & NDVI
+• 1024x1024 PNGs to GCS"] --> B["2. Event Streaming
+• Cloud Pub/Sub
+• imagery-ready event topic
+• Push trigger to ADK fleet"]
+
+    B --> C["3. Multimodal Vision
+• Orchestrator Agent (ADK)
+• Gemini 3.6 Flash
+• Temporal diffing (1-5 severity)
+• Physical change reasoning"]
+
+    C --> D["4. Context & Scoring
+• Context Enricher (Open-Meteo/USGS)
+• Risk Scorer (0-100 composite)
+• Response Drafter Agent
+• Automated alert dispatch"]
+
+    D --> E["5. State & Dashboard
+• Cloud Firestore database
+• Next.js 16 Server Components
+• Interactive capture timeline
+• Live map & operator review"]
+
+    style A fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style B fill:#18181b,stroke:#71717a,stroke-width:2px,color:#fff
+    style C fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff
+    style D fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff
+    style E fill:#042f2e,stroke:#14b8a6,stroke-width:2px,color:#fff
 ```
 
 ---
