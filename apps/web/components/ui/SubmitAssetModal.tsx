@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
-import { createAsset } from "../../lib/firestore";
 import type { Asset } from "../../lib/types";
 
 type SubmitAssetModalProps = {
@@ -110,17 +109,15 @@ export default function SubmitAssetModal({ isOpen, onClose, onSuccess }: SubmitA
         },
       };
 
-      await createAsset(assetData);
+      const res = await fetch("/api/assets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(assetData),
+      });
 
-      // Trigger the end-to-end imagery pipeline immediately
-      try {
-        fetch("/api/trigger-analysis", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ assetId }),
-        }).catch((err) => console.warn("Pipeline trigger notification:", err));
-      } catch (e) {
-        // Non-blocking trigger
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: "Failed to create asset" }));
+        throw new Error(errData.error || "Failed to register asset in Firestore");
       }
 
       if (onSuccess) onSuccess(assetId);
